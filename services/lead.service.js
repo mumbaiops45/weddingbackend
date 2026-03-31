@@ -29,7 +29,6 @@ exports.getLeads = async(query) => {
 
     const [leads, total] = await Promise.all([
         Lead.find(filter)
-            // .populate("assignedTo", "name email")
             .sort({ [sortBy]: sortOrder })
             .skip(skip)
             .limit(Number(limit)),
@@ -52,28 +51,36 @@ exports.getLeadById = async(id) => {
         _id: id, 
         isDeleted: false  
     })
-    // .populate("assignedTo", "name email");
 }
 
-exports.updateLead = async(id, data) => {
+
+
+exports.updateLead = async (id, data, userId) => {
     const lead = await Lead.findOne({ _id: id, isDeleted: false });
-    if(!lead) throw new Error("Lead not found");
+    if (!lead) throw new Error("Lead not found");
+
+    if (lead.assignedTo.toString() !== userId.toString()) {
+        throw new Error("Unauthorized - You can only update your own leads");
+    }
 
     delete data.isDeleted;
     delete data.deletedAt;
 
     return await Lead.findByIdAndUpdate(
-        id, 
-        data, 
+        id,
+        data,
         { new: true, runValidators: true }
-    )
-    // .populate("assignedTo", "name email");
-}
+    );
+};
 
-exports.deleteLead = async(id) => {
+exports.deleteLead = async(id , userId) => {
     const lead = await Lead.findById(id);
     if(!lead) return null;
     if(lead.isDeleted) throw new Error("Lead is already deleted");
+
+    if(lead.assignedTo.toString() !== userId.toString()){
+        throw new Error("Unauthorized - You can only delete your own leads");
+    }
 
     return await Lead.findByIdAndUpdate(
         id,
