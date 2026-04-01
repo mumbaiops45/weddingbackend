@@ -14,7 +14,7 @@ const PackageSchema = new mongoose.Schema({
   basePrice: { type: Number, required: true },
   description: { type: String, trim: true },
   services: [PackageServiceSchema],
-  popularityScore: { type: Number, default: 0 }, 
-}, { timestamps: true }); 
+  popularityScore: { type: Number, default: 0 },
+}, { timestamps: true });
 
 module.exports = mongoose.model("Package", PackageSchema);
