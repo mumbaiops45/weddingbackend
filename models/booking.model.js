@@ -8,60 +8,73 @@ const BookingVendorSchema = new mongoose.Schema({
     },
     assignedRole: {
         type: String,
+        trim: true
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
+}, { _id: true , timestamps: true });
 
 const BookingSchema = new mongoose.Schema({
     lead: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Lead",
-        required: true
+        required: true,
+        index: true
     },
     package: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Package",
-        required: true
+        required: true,
+        index: true
     },
     eventDate: {
         type: Date,
-        required: true
+        required: true,
+        index: true
     },
     totalPrice: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     status: { 
     type: String,
     enum: ["Pending", "Confirmed", "In Progress", "Completed", "Cancelled"],
-    default: "Pending"
+    default: "Pending",
+    index: true
   },
   paymentStatus: { 
     type: String,
     enum: ["Pending", "Partial", "Paid", "Overdue"],
-    default: "Pending"
+    default: "Pending",
+    index: true
+  },
+
+  confirmedAt: {
+    type: Date,
+    default: null
+  },
+  rejectedAt: {
+    type: Date,
+    default: null
+  },
+
+  paidAmount: {
+    type: Number,
+    default: 0,
+    min: 0
   },
 
   vendors: [BookingVendorSchema],
-  notes: [{type: String}],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  notes: [{
+    type: String , 
+    trim : true
+ }],
+},  { timestamps: true });
 
 
-// BookingSchema.pre("save", function(next) {
-//   this.updatedAt = Date.now();
-//   next();
-// });
+BookingSchema.index({ status: 1, createdAt: -1});
+BookingSchema.index({lead: 1, status: 1});
+BookingSchema.index({paymentStatus:1, status: 1});
+BookingSchema.index({eventDate: 1, status: 1});
 
 
 const Booking = mongoose.model("Booking", BookingSchema);
