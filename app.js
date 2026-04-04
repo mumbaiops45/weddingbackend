@@ -12,6 +12,7 @@ const vendorRouter = require("./route/vendor.routes");
 const bookingRoutes = require("./route/booking.route");
 const eventRoutes = require("./route/event.route");
 const {errorHandler} = require("./utils/errorHandler");
+const paymentRoute = require("./route/payment.route");
 
 dotenv.config();
 
@@ -32,10 +33,11 @@ app.use(cookieParser());
 
 app.use("/", leadRoutes);
 app.use("/", userRoute);
-app.use("/", vendorRouter);
+app.use("/vendor", vendorRouter);
 app.use("/", bookingRoutes);
 app.use("/", packageRoutes);
 app.use("/events", eventRoutes);
+app.use("/payment", paymentRoute);
 
 app.use(errorHandler);
 

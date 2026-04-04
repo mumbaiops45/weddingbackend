@@ -33,10 +33,7 @@ const VendorSchema = new mongoose.Schema({
 }, {timestamps: true});
 
 
-// VendorSchema.pre("save", function(next) {
-//   this.updatedAt = Date.now();
-//   next();
-// });
+
 
 const Vendor = mongoose.model("Vendor", VendorSchema);
 module.exports = Vendor;

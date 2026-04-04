@@ -1,7 +1,7 @@
 const Booking = require("../models/booking.model");
 const Lead = require("../models/lead.model");     
 const Package = require("../models/Package.model"); 
-const Vendor = require("../models/Vendor");
+const Vendor = require("../models/vendor.model");
 
 
 const createBooking = async (data) => {
