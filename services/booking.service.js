@@ -11,14 +11,10 @@ const createBooking = async (data) => {
     if (!leadExists) {
         throw new Error("Invalid Lead ID");
     }
-
-  
     const packageExists = await Package.findById(packageId);
     if (!packageExists) {
         throw new Error("Invalid Package ID");
     }
-
-   
     const existingBooking = await Booking.findOne({
         lead: lead,
         package: packageId

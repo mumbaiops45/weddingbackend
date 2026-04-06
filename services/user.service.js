@@ -8,7 +8,7 @@ const generateTokens = (userId) => {
     const accessToken = jwt.sign(
         { id: userId },
         process.env.JWT_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: "6d" }
     );
 
     const refreshToken = jwt.sign(
@@ -45,7 +45,6 @@ const registerUser = async({name, email, password}) => {
 
 
 const loginUser = async({email, password}) => {
-    // const user = await User.findOne({email});
     const user = await User.findOne({ email }).select("+password");
     if(!user){
         throw new Error("Invalid Credentials");
