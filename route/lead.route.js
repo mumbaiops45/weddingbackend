@@ -5,7 +5,7 @@ const leadController = require("../controller/lead.controller");
 const Auth = require("../middleware/Auth");
 
 
-
+router.get("/search", leadController.searchLeadscont);
 router.post("/create", Auth, leadController.createLead);
 router.get("/getall", leadController.getLeads);
 router.get("/get/:id", leadController.getLead);

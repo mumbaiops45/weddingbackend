@@ -10,6 +10,17 @@ exports.createLead = async(req, res) => {
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
+}    
+
+exports.searchLeadscont = async (req, res) => {
+    try {
+      
+        const results = await leadService.searchLeads(req.query);
+        res.json({ success: true, ...results});
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ success: false, message: error.message });
+    }
 }
 
 exports.getLeads = async(req, res) => {

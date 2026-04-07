@@ -1,17 +1,64 @@
 const Lead = require("../models/lead.model");
 
-exports.createLead = async(data) => {
-    const existing = await Lead.findOne({ 
-        phone: data.phone, 
-        isDeleted: false 
+exports.createLead = async (data) => {
+    const existing = await Lead.findOne({
+        phone: data.phone,
+        isDeleted: false
     });
-    if(existing) throw new Error("Lead with this phone already exists");
+    if (existing) throw new Error("Lead with this phone already exists");
 
     const lead = new Lead(data);
     return await lead.save();
 }
 
-exports.getLeads = async(query) => {
+exports.searchLeads = async (query) =>{
+    const {searchText , status , source, assignedTo, page  = 1, limit = 20,
+        sortBy = "createdAt" ,
+        order = "desc"
+    } = query;
+
+    const filter = {isDeleted: false};
+     
+
+    if (status) filter.status = status;
+    if (source) filter.source = source;
+    if(assignedTo) filter.assignedTo = mongoose.Types.ObjectId(assignedTo);
+
+    if (searchText){
+        const regex = new RegExp(searchText, "i");
+        filter.$or = [
+            {clientName: regex},
+            {phone: regex},
+            {email: regex},
+            {location: regex}
+        ];
+    }
+     
+    const pageNumber = Number(page) || 1;
+    const limitNumber = Number(limit) || 20;
+    const skip = (page - 1) * limitNumber;
+    const sortOrder = order === "asc" ? 1 : -1;
+
+    const [leads, total] = await Promise.all([
+        Lead.find(filter)
+        .sort({ [sortBy]: sortOrder})
+        .skip(skip)
+        .limit(limitNumber),
+        Lead.countDocuments(filter)
+    ]);
+
+    return {
+        leads, 
+        pagination:{
+            total,
+            page: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil(total / limitNumber)
+        }
+    };
+};
+
+exports.getLeads = async (query) => {
     const {
         status, source, assignedTo,
         page = 1, limit = 20,
@@ -20,9 +67,9 @@ exports.getLeads = async(query) => {
 
     const filter = { isDeleted: false };
 
-    if(status) filter.status = status;
-    if(source) filter.source = source;
-    if(assignedTo) filter.assignedTo = assignedTo;
+    if (status) filter.status = status;
+    if (source) filter.source = source;
+    if (assignedTo) filter.assignedTo = assignedTo;
 
     const skip = (page - 1) * limit;
     const sortOrder = order === "asc" ? 1 : -1;
@@ -46,10 +93,10 @@ exports.getLeads = async(query) => {
     };
 }
 
-exports.getLeadById = async(id) => {
-    return await Lead.findOne({ 
-        _id: id, 
-        isDeleted: false  
+exports.getLeadById = async (id) => {
+    return await Lead.findOne({
+        _id: id,
+        isDeleted: false
     })
 }
 
@@ -73,12 +120,12 @@ exports.updateLead = async (id, data, userId) => {
     );
 };
 
-exports.deleteLead = async(id , userId) => {
+exports.deleteLead = async (id, userId) => {
     const lead = await Lead.findById(id);
-    if(!lead) return null;
-    if(lead.isDeleted) throw new Error("Lead is already deleted");
+    if (!lead) return null;
+    if (lead.isDeleted) throw new Error("Lead is already deleted");
 
-    if(lead.assignedTo.toString() !== userId.toString()){
+    if (lead.assignedTo.toString() !== userId.toString()) {
         throw new Error("Unauthorized - You can only delete your own leads");
     }
 
@@ -89,10 +136,10 @@ exports.deleteLead = async(id , userId) => {
     );
 }
 
-exports.restoreLead = async(id) => {
+exports.restoreLead = async (id) => {
     const lead = await Lead.findById(id);
-    if(!lead) return null;
-    if(!lead.isDeleted) throw new Error("Lead is not deleted");
+    if (!lead) return null;
+    if (!lead.isDeleted) throw new Error("Lead is not deleted");
 
     return await Lead.findByIdAndUpdate(
         id,
@@ -101,9 +148,9 @@ exports.restoreLead = async(id) => {
     );
 }
 
-exports.addFollowUp = async(id, data) => {
+exports.addFollowUp = async (id, data) => {
     const lead = await Lead.findOne({ _id: id, isDeleted: false });
-    if(!lead) throw new Error("Lead not found");
+    if (!lead) throw new Error("Lead not found");
 
     lead.followUps.push(data);
     return await lead.save();

@@ -117,3 +117,21 @@ exports.logout = async (req, res) => {
         res.status(400).json({ success: false, message: error.message });
     }
 };
+
+
+exports.deleteAdmins = async (req, res) => {
+    try {
+        const result = await userService.deleteAllAdmins();
+
+        res.json({
+            success: true,
+            message: "All admin users deleted",
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+}

@@ -4,18 +4,49 @@ const jwt = require("jsonwebtoken");
 
 
 
-const generateTokens = (userId) => {
-    const accessToken = jwt.sign(
-        { id: userId },
-        process.env.JWT_SECRET,
-        { expiresIn: "6d" }
-    );
+// const generateTokens = (userId) => {
 
-    const refreshToken = jwt.sign(
-        { id: userId },
-        process.env.JWT_REFRESH_SECRET,
-        { expiresIn: "7d" }
-    );
+//     const payload = {
+//         id: user._id,
+//         role: user.role
+//     };
+
+//     // const accessToken = jwt.sign(
+//     //     { id: userId },
+//     //     process.env.JWT_SECRET,
+//     //     { expiresIn: "15m" }
+//     // );
+
+//     // const refreshToken = jwt.sign(
+//     //     { id: userId },
+//     //     process.env.JWT_REFRESH_SECRET,
+//     //     { expiresIn: "7d" }
+//     // );
+
+//     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+//         expiresIn: "15m"
+//     });
+
+//     const refreshToken = jwt.sign(payload , process.env.JWT_REFRESH_SECRET, {
+//     expiresIn: "7d"
+//     });
+
+//     return { accessToken, refreshToken };
+// };
+
+const generateTokens = (user) => {
+    const payload = {
+        id: user._id,
+        role: user.role
+    };
+
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+        expiresIn: "15m"
+    });
+
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+        expiresIn: "7d"
+    });
 
     return { accessToken, refreshToken };
 };
@@ -63,12 +94,6 @@ const loginUser = async({email, password}) => {
     return { user, accessToken, refreshToken };
 };
 
-
-
-
-
-
-
 const refreshAccessToken =  async(refreshToken) => {
     if(!refreshToken) {
         throw new Error("No refresh token provided");
@@ -102,10 +127,16 @@ const logoutUser = async(userId) => {
         await user.save();
     }
 };
+
+const deleteAllAdmins = async () => {
+    const result = await User.deleteMany({ role: "admin" });
+    return result;
+};
  
 module.exports = {
     registerUser,
     loginUser,
     refreshAccessToken,
-    logoutUser
+    logoutUser,
+    deleteAllAdmins
 };
