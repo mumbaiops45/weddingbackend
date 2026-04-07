@@ -18,7 +18,12 @@ dotenv.config();
 
 
 app.use(cors({
-  origin: "http://localhost:3000",
+  // origin: "http://localhost:3000",
+  origin: [
+    "http://localhost:3000",
+    "https://sparkling-starlight-a9013d.netlify.app"
+  ],
+  
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
